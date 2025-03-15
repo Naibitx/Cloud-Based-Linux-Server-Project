@@ -28,7 +28,7 @@ memory_stress()
 os_stress()
 {
     echo "Stressing the OS Scheduler "
-    stress-ng --sched 2 --timeout 60s
+    stress-ng --sched rr --timeout 60s
 }
 
 #Loop for continious stress testing
