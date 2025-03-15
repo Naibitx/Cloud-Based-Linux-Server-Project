@@ -4,31 +4,31 @@
 cpu_stress() 
 {
     echo "Stressing the CPU"
-    stress-ng -- cpu 4 -- timeout 60s
+    stress-ng --cpu 4 --timeout 60s
 }
 #Function simulates IO load/stress 
 io_stress()
 {
     echo "Stressing the IO"
-    stress-ng -- io 2 -- timeout 60s
+    stress-ng --io 2 --timeout 60s
 }
 #Function simulates Hard Disk load/stress 
 filesystem_stress()
 {
     echo "Stressing the Hard Disk"
-    stress-ng -- hdd 2 -- timeout 60s
+    stress-ng --hdd 2 --timeout 60s
 }
 #Function simulates Virtual Memory load/stress 
 memory_stress()
 {
     echo "Stressing the Virtual Memory"
-    stress-ng -- vm 2 -- timeout 60s
+    stress-ng --vm 2 --timeout 60s
 }
 #Function simulates OS load/stress 
 os_stress()
 {
     echo "Stressing the OS Scheduler "
-    stress-ng -- sched 2 -- timeout 60s
+    stress-ng --sched 2 --timeout 60s
 }
 
 #Loop for continious stress testing
