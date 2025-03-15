@@ -1,1 +1,1 @@
-# Cloud-Based-Linux-Server-Project
+# Cloud-Based Linux Server Project
