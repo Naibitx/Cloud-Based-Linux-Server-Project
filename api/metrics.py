@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 import psutil
 import time
 import csv
@@ -7,15 +8,19 @@ import traceback
 import threading
 
 app = Flask(__name__)
+CORS(app, resources={r"/metrics": {"origins": "http://localhost:*"}})
 
 PIPE_PATH = "/tmp/metrics_pipe"
 
 CSV_FILE = "metric_logs.csv"
 
 def csv_saves(metrics):
+    print("debug 4")
     try:
         file_exist = os.path.isfile(CSV_FILE)
+        print("debug 5")
         with open(CSV_FILE, mode='a', newline='') as f:
+            print("debug 7")
             writer= csv.writer(f)
             if not file_exist:
                 writer.writerow(["Timestamp", "CPU Usage(%)", "Memory Usage(%)", "IO(Disk) Read(MB)", "IO(Disk) Write(MB)","Disk Usage(%)", "OS User Time(s)", "OS System Time(s)", "OS Idle Time(s)"])
@@ -41,6 +46,7 @@ def csv_saves(metrics):
     except Exception as e:
         print(f"Error: unexpected error when saving data to {CSV_FILE}: {e}")
         traceback.print_exc()
+    print("debug ")
 
 def monitor_cpu(): # funtion tracks cpu usage
     return psutil.cpu_percent(interval=1)
@@ -62,11 +68,13 @@ def monitor_os():# functiont racks OS which is the cpu times
     return os_use.user, os_use.system, os_use.idle
 
 def get_metrics():# funciton collects the metrics
+    print("debug 2")
     cpu_use= monitor_cpu()
     memory_use= monitor_memory()
     io_read, io_write= monitor_io()
     disk_use= monitor_disk()
     os_user, os_system, os_idle = monitor_os()
+    print("debug 3")
 
     metrics= {
         "CPU Usage(%)": cpu_use,
@@ -77,6 +85,7 @@ def get_metrics():# funciton collects the metrics
         "OS User Time(s)": os_user,
         "OS System Time(s)": os_system,
         "OS Idle Time(s)": os_idle
+
 }
     return metrics
 
@@ -109,6 +118,7 @@ def api_metrics():
     except Exception as e:
         return jsonify({"Error: ": str(e)}), 500
 def back_task():
+    print("Debug 1")
     while True:
         metrics= get_metrics()
         show_metrics(metrics)
@@ -119,8 +129,7 @@ if __name__ == "__main__":
     thread = threading.Thread(target=back_task)
     thread.daemon = True
     thread.start()
-
-app.run("0.0.0.0", port =5001)
+    app.run("0.0.0.0", port =5001)
 
 
 
