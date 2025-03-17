@@ -1,8 +1,14 @@
+from flask import Flask, jsonify
 import psutil
 import time
 import csv
 import os
 import traceback
+import threading
+
+app = Flask(__name__)
+
+PIPE_PATH = "/tmp/metrics_pipe"
 
 CSV_FILE = "metric_logs.csv"
 
@@ -38,18 +44,23 @@ def csv_saves(metrics):
 
 def monitor_cpu(): # funtion tracks cpu usage
     return psutil.cpu_percent(interval=1)
+
 def monitor_io(): # function tracs io statistics 
     io_counter= psutil.disk_io_counters()
     read_bytes= io_counter.read_bytes/ (1024*1024) #converting to MB
     write_bytes= io_counter.write_bytes / (1024*1024) #converting to MB
     return read_bytes, write_bytes
+
 def monitor_memory():# funciton tracks memory usage
     return psutil.virtual_memory().percent
+
 def monitor_disk(): # function tracks disk usage
     return psutil.disk_usage('/').percent
+
 def monitor_os():# functiont racks OS which is the cpu times
     os_use = psutil.cpu_times()
     return os_use.user, os_use.system, os_use.idle
+
 def get_metrics():# funciton collects the metrics
     cpu_use= monitor_cpu()
     memory_use= monitor_memory()
@@ -80,12 +91,36 @@ def show_metrics(metrics):
     print(f"CPU Idle Time: {metrics['OS Idle Time(s)']:.2f}s")
     print("-"* 50)
 
-if __name__ == "__main__":
+def write_to_pipe():
+    if not os.path.exists(PIPE_PATH):
+        os.mkfifo(PIPE_PATH)
+
     while True:
         metrics = get_metrics()
+        with open(PIPE_PATH, "w") as pipe:
+            pipe.write(str(metrics)+ "\n")
+        time.sleep(4)
+
+@app.route('/metrics', methods =['GET'])
+def api_metrics():
+    try:
+        metrics = get_metrics()
+        return jsonify(metrics)
+    except Exception as e:
+        return jsonify({"Error: ": str(e)}), 500
+def back_task():
+    while True:
+        metrics= get_metrics()
         show_metrics(metrics)
         csv_saves(metrics)
         time.sleep(5)
+
+if __name__ == "__main__":
+    thread = threading.Thread(target=back_task)
+    thread.daemon = True
+    thread.start()
+
+app.run("0.0.0.0", port =5001)
 
 
 
