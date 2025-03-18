@@ -33,9 +33,9 @@ const Dashboard = () => {
                     io_write_history: data.io_write_history || prev.io_write_history,
                     filesystem_history: data.filesystem_history || prev.filesystem_history,
                     os_history: {
-                        user: data.os_history?.user || prev.os_history.user,
-                        system: data.os_history?.system || prev.os_history.system,
-                        idle: data.os_history?.idle || prev.os_history.idle
+                        user: data.os_user_history || prev.os_history.user,
+                        system: data.os_system_history || prev.os_history.system,
+                        idle: data.os_idle_history || prev.os_history.idle
                     }
                 }));
             } catch (error) {

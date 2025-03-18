@@ -5,6 +5,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const FilesystemChart = ({ filesystemHistory }) => {
+    console.log(filesystemHistory)
     const chartData = {
         labels: Array.from(Array(filesystemHistory.length).keys()),
         datasets: [
