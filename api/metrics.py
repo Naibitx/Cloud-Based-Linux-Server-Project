@@ -85,7 +85,10 @@ def get_metrics():# funciton collects the metrics
     memory_history.append(memory_use)
     io_read_history.append(io_read)
     io_write_history.append(io_write)
-    filesystem_history.append(disk_use)
+    filesystem_history.append({
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "usage": disk_use
+    })
     os_user_history.append(os_user)
     os_system_history.append(os_system)
     os_idle_history.append(os_idle)
@@ -160,7 +163,7 @@ if __name__ == "__main__":
 
     thread_A.start()
     thread_B.start()
-    
+
     app.run("0.0.0.0", port =5001)
 
 
