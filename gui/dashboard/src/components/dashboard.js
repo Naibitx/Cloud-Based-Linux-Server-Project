@@ -1,35 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import CPUChart from './cpucharts';
 
 const Dashboard = () => {
     const [selectedMetric, setSelectedMetric] = useState(null);
+    const [cpuHistoryData, setCpuHistoryData] = useState([]);
 
-    const Graphs = {  //Graph Components (All in One File
-    CPU: () => <div className="graph"> CPU Chart</div>,
-    Memory: () => <div className="graph">Memory Chart</div>,
-    IO: () => <div className="graph">I/O </div>,
-    Filesystem: () => <div className="graph"> Filesystem Chart</div>,
-    OS: () => <div className="graph">OS Performance Chart</div>,
+    useEffect(() => {
+        const fetchInitialMetrics = async () => {
+            try {
+                const response = await fetch('http://localhost:5001/metrics');
+                if (!response.ok) {
+                    console.error('Error: Failed to get metrics', response.status);
+                    return;
+                }
+                const data = await response.json();
+                console.log('Frontend received data:', data); 
+                setCpuHistoryData(data.cpu_history); 
+            } catch (error) {
+                console.error('Error fetching metrics:', error);
+            }
+        };
+
+        fetchInitialMetrics();
+        const intervalId = setInterval(fetchInitialMetrics, 5000);
+        return () => clearInterval(intervalId);
+    }, []);
+
+    const Graphs = {
+        CPU: (
+            <div className="graph">
+                {cpuHistoryData && <CPUChart cpuHistory={cpuHistoryData} />}
+            </div>
+        ),
     };
 
     return (
         <div className="dashboard-cont">
-
-        <div className="button-group">
-            {Object.keys(Graphs).map((metric) => (
-                <button
-                    key={metric}
-                    onClick={() => setSelectedMetric(metric)}
-                    className={selectedMetric === metric ? 'active' : ''}
+            {/* Buttons to select a metric */}
+            <div className="button-group">
+                {Object.keys(Graphs).map((metric) => (
+                    <button
+                    key="CPU"
+                    onClick={() => {
+                        setSelectedMetric("CPU");
+                        console.log('Selected Metric:', "CPU");
+                    }}
+                    className={selectedMetric === "CPU" ? 'active' : ''}
                 >
-                    {metric}
+                    CPU
                 </button>
-            ))}
-        </div>
+                ))}
+            </div>
 
-        <div className="graph-cont">
-        {selectedMetric ? React.createElement(Graphs[selectedMetric]) : <p>Click metric to view data</p>}
+            {/* Display the corresponding graph */}
+            <div className="graph-cont"style={{ height: '300px' }}>
+                {selectedMetric ? Graphs[selectedMetric] : <p>Select a metric to view data</p>}
+            </div>
         </div>
-    </div>
     );
 };
+
 export default Dashboard;

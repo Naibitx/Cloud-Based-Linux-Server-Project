@@ -7,6 +7,7 @@ import os
 import traceback
 import threading
 
+
 app = Flask(__name__)
 CORS(app, resources={r"/metrics": {"origins": "http://localhost:*"}})
 
@@ -109,11 +110,26 @@ def write_to_pipe():
         with open(PIPE_PATH, "w") as pipe:
             pipe.write(str(metrics)+ "\n")
         time.sleep(4)
+        
+def get_cpu_history():
+    history = []
+    try:
+        if os.path.isfile(CSV_FILE):
+            with open(CSV_FILE, mode='r') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    history.append(row["CPU Usage(%)"])
+    except Exception as e:
+        print(f"Error reading CPU history from CSV: {e}")
+    return history
+
 
 @app.route('/metrics', methods =['GET'])
 def api_metrics():
     try:
-        metrics = get_metrics()
+        metrics = get_metrics()#get the current metrics
+        cpu_history = get_cpu_history()#get the historical CPU data from CSV
+        metrics["cpu_history"] = cpu_history  
         return jsonify(metrics)
     except Exception as e:
         return jsonify({"Error: ": str(e)}), 500
