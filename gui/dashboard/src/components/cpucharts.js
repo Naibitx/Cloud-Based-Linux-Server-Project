@@ -10,7 +10,7 @@ const CPUChart = ({ cpuHistory }) => {
         datasets: [
             {
                 label: 'CPU Usage (%)',
-                data: cpuHistory.map(Number),
+                data: cpuHistory, 
                 fill: false,
                 borderColor: 'steelblue',
                 tension: 0.1,

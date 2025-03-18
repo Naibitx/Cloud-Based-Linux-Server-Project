@@ -6,7 +6,7 @@ import csv
 import os
 import traceback
 import threading
-
+from collections import deque
 
 app = Flask(__name__)
 CORS(app, resources={r"/metrics": {"origins": "http://localhost:*"}})
@@ -110,8 +110,16 @@ def write_to_pipe():
         with open(PIPE_PATH, "w") as pipe:
             pipe.write(str(metrics)+ "\n")
         time.sleep(4)
+HISTORY_LENGTH = 30
+
+# Create history queues for each metric
+cpu_history = deque(maxlen=HISTORY_LENGTH)
+memory_history = deque(maxlen=HISTORY_LENGTH)
+io_history = deque(maxlen=HISTORY_LENGTH)
+filesystem_history = deque(maxlen=HISTORY_LENGTH)
+os_history = deque(maxlen=HISTORY_LENGTH)
         
-def get_cpu_history():
+""" def get_cpu_history():
     history = []
     try:
         if os.path.isfile(CSV_FILE):
@@ -121,26 +129,34 @@ def get_cpu_history():
                     history.append(row["CPU Usage(%)"])
     except Exception as e:
         print(f"Error reading CPU history from CSV: {e}")
-    return history
+    return history """
 
-
-@app.route('/metrics', methods =['GET'])
-def api_metrics():
-    try:
-        metrics = get_metrics()#get the current metrics
-        cpu_history = get_cpu_history()#get the historical CPU data from CSV
-        metrics["cpu_history"] = cpu_history  
-        return jsonify(metrics)
-    except Exception as e:
-        return jsonify({"Error: ": str(e)}), 500
 def back_task():
-    print("Debug 1")
     while True:
-        metrics= get_metrics()
+        metrics = get_metrics()
+        cpu_history.append(metrics["CPU Usage(%)"])
+        memory_history.append(metrics["Memory Usage(%)"])
+        io_history.append(metrics["IO(Disk) Read(MB)"])  
+        filesystem_history.append(metrics["Disk Usage(%)"])
+        os_history.append(metrics["OS User Time(s)"])
+
         show_metrics(metrics)
         csv_saves(metrics)
         time.sleep(5)
 
+@app.route('/metrics', methods=['GET'])
+def api_metrics():
+    try:
+        metrics = get_metrics()
+        metrics['cpu_history'] = list(cpu_history)
+        metrics['memory_history'] = list(memory_history)
+        metrics['io_history'] = list(io_history)
+        metrics['filesystem_history'] = list(filesystem_history)
+        metrics['os_history'] = list(os_history)
+        return jsonify(metrics)
+    except Exception as e:
+        return jsonify({"Error: ": str(e)}), 500
+        
 if __name__ == "__main__":
     thread = threading.Thread(target=back_task)
     thread.daemon = True

@@ -14,8 +14,7 @@ const Dashboard = () => {
                     return;
                 }
                 const data = await response.json();
-                console.log('Frontend received data:', data); 
-                setCpuHistoryData(data.cpu_history); 
+                setCpuHistoryData(data.cpu_history);
             } catch (error) {
                 console.error('Error fetching metrics:', error);
             }
@@ -27,37 +26,31 @@ const Dashboard = () => {
     }, []);
 
     const Graphs = {
-        CPU: (
-            <div className="graph">
-                {cpuHistoryData && <CPUChart cpuHistory={cpuHistoryData} />}
-            </div>
-        ),
+        CPU:() => <CPUChart cpuHistory={cpuHistoryData} />,
+
     };
-
-    return (
-        <div className="dashboard-cont">
-            {/* Buttons to select a metric */}
-            <div className="button-group">
-                {Object.keys(Graphs).map((metric) => (
-                    <button
-                    key="CPU"
+return (
+    <div className="dashboard-cont">
+        <div className="button-group">
+            {Object.keys(Graphs).map((metric) => (
+                <button
+                    key={metric}
                     onClick={() => {
-                        setSelectedMetric("CPU");
-                        console.log('Selected Metric:', "CPU");
+                        setSelectedMetric(metric);
+                        console.log('Selected Metric:', metric);
                     }}
-                    className={selectedMetric === "CPU" ? 'active' : ''}
+                    className={selectedMetric === metric ? 'active' : ''}
                 >
-                    CPU
+                    {metric}
                 </button>
-                ))}
-            </div>
-
-            {/* Display the corresponding graph */}
-            <div className="graph-cont"style={{ height: '300px' }}>
-                {selectedMetric ? Graphs[selectedMetric] : <p>Select a metric to view data</p>}
-            </div>
+            ))}
         </div>
-    );
+
+        <div className="graph-cont" style={{ height: '300px' }}>
+            {selectedMetric ? React.createElement(Graphs[selectedMetric]) : <p>Select a metric to view data</p>}
+        </div>
+    </div>
+);
 };
 
 export default Dashboard;
