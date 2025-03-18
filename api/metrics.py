@@ -15,13 +15,21 @@ PIPE_PATH = "/tmp/metrics_pipe"
 
 CSV_FILE = "metric_logs.csv"
 
+HISTORY_LENGTH = 30
+
+cpu_history = deque(maxlen=HISTORY_LENGTH)
+memory_history = deque(maxlen=HISTORY_LENGTH)
+io_read_history = deque(maxlen=HISTORY_LENGTH)
+io_write_history = deque(maxlen=HISTORY_LENGTH)
+filesystem_history = deque(maxlen=HISTORY_LENGTH)
+os_user_history = deque(maxlen=HISTORY_LENGTH)
+os_system_history = deque(maxlen=HISTORY_LENGTH)
+os_idle_history = deque(maxlen=HISTORY_LENGTH)
+
 def csv_saves(metrics):
-    print("debug 4")
     try:
         file_exist = os.path.isfile(CSV_FILE)
-        print("debug 5")
         with open(CSV_FILE, mode='a', newline='') as f:
-            print("debug 7")
             writer= csv.writer(f)
             if not file_exist:
                 writer.writerow(["Timestamp", "CPU Usage(%)", "Memory Usage(%)", "IO(Disk) Read(MB)", "IO(Disk) Write(MB)","Disk Usage(%)", "OS User Time(s)", "OS System Time(s)", "OS Idle Time(s)"])
@@ -37,7 +45,6 @@ def csv_saves(metrics):
                 metrics["OS System Time(s)"],
                 metrics["OS Idle Time(s)"]
             ])
-
     except FileNotFoundError:
         print(f"Error: {CSV_FILE} file not Found")
     except PermissionError:
@@ -47,7 +54,6 @@ def csv_saves(metrics):
     except Exception as e:
         print(f"Error: unexpected error when saving data to {CSV_FILE}: {e}")
         traceback.print_exc()
-    print("debug ")
 
 def monitor_cpu(): # funtion tracks cpu usage
     return psutil.cpu_percent(interval=1)
@@ -69,15 +75,22 @@ def monitor_os():# functiont racks OS which is the cpu times
     return os_use.user, os_use.system, os_use.idle
 
 def get_metrics():# funciton collects the metrics
-    print("debug 2")
     cpu_use= monitor_cpu()
     memory_use= monitor_memory()
     io_read, io_write= monitor_io()
     disk_use= monitor_disk()
     os_user, os_system, os_idle = monitor_os()
-    print("debug 3")
 
-    metrics= {
+    cpu_history.append(cpu_use)
+    memory_history.append(memory_use)
+    io_read_history.append(io_read)
+    io_write_history.append(io_write)
+    filesystem_history.append(disk_use)
+    os_user_history.append(os_user)
+    os_system_history.append(os_system)
+    os_idle_history.append(os_idle)
+
+    return{
         "CPU Usage(%)": cpu_use,
         "Memory Usage(%)": memory_use,
         "IO(Disk) Read(MB)": io_read,
@@ -88,7 +101,6 @@ def get_metrics():# funciton collects the metrics
         "OS Idle Time(s)": os_idle
 
 }
-    return metrics
 
 def show_metrics(metrics):
     print(f"CPU Usage: {metrics['CPU Usage(%)']}%")
@@ -106,40 +118,20 @@ def write_to_pipe():
         os.mkfifo(PIPE_PATH)
 
     while True:
-        metrics = get_metrics()
-        with open(PIPE_PATH, "w") as pipe:
-            pipe.write(str(metrics)+ "\n")
-        time.sleep(4)
-HISTORY_LENGTH = 30
-
-# Create history queues for each metric
-cpu_history = deque(maxlen=HISTORY_LENGTH)
-memory_history = deque(maxlen=HISTORY_LENGTH)
-io_history = deque(maxlen=HISTORY_LENGTH)
-filesystem_history = deque(maxlen=HISTORY_LENGTH)
-os_history = deque(maxlen=HISTORY_LENGTH)
-        
-""" def get_cpu_history():
-    history = []
-    try:
-        if os.path.isfile(CSV_FILE):
-            with open(CSV_FILE, mode='r') as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    history.append(row["CPU Usage(%)"])
-    except Exception as e:
-        print(f"Error reading CPU history from CSV: {e}")
-    return history """
+        try:
+            metrics = get_metrics()
+            with open(PIPE_PATH, "w") as pipe:
+                pipe.write(str(metrics)+ "\n")
+            time.sleep(4)
+        except BrokenPipeError:
+            print("Pipe is not being read")
+        except Exception as e:
+            print(f"Error writing to pipe: {e}")
+            traceback.print_exc()
 
 def back_task():
     while True:
         metrics = get_metrics()
-        cpu_history.append(metrics["CPU Usage(%)"])
-        memory_history.append(metrics["Memory Usage(%)"])
-        io_history.append(metrics["IO(Disk) Read(MB)"])  
-        filesystem_history.append(metrics["Disk Usage(%)"])
-        os_history.append(metrics["OS User Time(s)"])
-
         show_metrics(metrics)
         csv_saves(metrics)
         time.sleep(5)
@@ -148,19 +140,27 @@ def back_task():
 def api_metrics():
     try:
         metrics = get_metrics()
-        metrics['cpu_history'] = list(cpu_history)
-        metrics['memory_history'] = list(memory_history)
-        metrics['io_history'] = list(io_history)
-        metrics['filesystem_history'] = list(filesystem_history)
-        metrics['os_history'] = list(os_history)
+        metrics.update({
+            "cpu_history": list(cpu_history),
+            "memory_history": list(memory_history),
+            "io_read_history": list(io_read_history),
+            "io_write_history": list(io_write_history),
+            "filesystem_history": list(filesystem_history),
+            "os_user_history": list(os_user_history),
+            "os_system_history": list(os_system_history),
+            "os_idle_history": list(os_idle_history),
+        })
         return jsonify(metrics)
     except Exception as e:
         return jsonify({"Error: ": str(e)}), 500
         
 if __name__ == "__main__":
-    thread = threading.Thread(target=back_task)
-    thread.daemon = True
-    thread.start()
+    thread_A = threading.Thread(target=back_task, daemon=True)
+    thread_B = threading.Thread(target=write_to_pipe, daemon=True)
+
+    thread_A.start()
+    thread_B.start()
+    
     app.run("0.0.0.0", port =5001)
 
 

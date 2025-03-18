@@ -3,8 +3,14 @@ import CPUChart from './cpucharts';
 
 const Dashboard = () => {
     const [selectedMetric, setSelectedMetric] = useState(null);
-    const [cpuHistoryData, setCpuHistoryData] = useState([]);
-
+    const [metricsHistory, setMetricsHistory] = useState({
+        cpu_history: [],
+        memory_history: [],
+        io_history: [],
+        filesystem_history: [],
+        os_history: []
+    });
+    
     useEffect(() => {
         const fetchInitialMetrics = async () => {
             try {
