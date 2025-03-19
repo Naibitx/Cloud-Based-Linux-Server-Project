@@ -39,17 +39,16 @@ const Metrics = () => {
     } = metrics;
 
     return (
-        <div>
-            <h1>System Metrics</h1>
+        <div className="metrics-container">
             <ul>
-                <li>CPU Usage: {cpuUsage}%</li>
-                <li>Memory Usage: {memoryUsage}%</li>
-                <li>Disk Read: {diskRead} MB</li>
-                <li>Disk Write: {diskWrite} MB</li>
-                <li>Disk Usage: {diskUsage}%</li>
-                <li>CPU User Time: {userTime} s</li>
-                <li>CPU System Time: {systemTime} s</li>
-                <li>CPU Idle Time: {idleTime} s</li>
+                <p>CPU Usage: {cpuUsage}%</p>
+                <p>Memory Usage: {memoryUsage}%</p>
+                <p>IO(Disk) Read: {diskRead} MB</p>
+                <p>IO(Disk) Write: {diskWrite} MB</p>
+                <p>Disk Usage: {diskUsage}%</p>
+                <p>OS User Time: {userTime} s</p>
+                <p>OS System Time: {systemTime} s</p>
+                <p>OS Idle Time: {idleTime} s</p>
             </ul>
         </div>
     );

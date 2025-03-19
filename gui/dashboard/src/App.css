@@ -1,5 +1,15 @@
+@font-face {
+  font-family: 'StardewValley'; /* Choose a name for your font */
+  src: url('./assets/StardewValley.ttf') format('truetype'); /* Adjust the path to where you stored the font */
+}
+
 .App {
   text-align: center;
+  background-image: url('./assets/loadingscreen.png');
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+
 }
 
 .App-logo {
@@ -14,7 +24,6 @@
 }
 
 .App-header {
-  background-color: #282c34;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -27,6 +36,36 @@
 .App-link {
   color: #61dafb;
 }
+.App-header img {
+  width: 850px;
+  height: auto; 
+  position: absolute;
+  left: 100px; 
+  top: 50px;
+
+}
+
+.metrics-container {
+  font-family: 'StardewValley', sans-serif;
+  color: #643932;
+  background-image: url('./assets/metrics.png');  
+  background-repeat: no-repeat;  
+  background-size: 50%;
+  width: 85%;  
+  height: 580px;  
+  text-align: left; /* Aligns text content inside to the left */
+  position: relative; /* Allows movement */
+  top: 450px; /* Moves the whole container down */
+  padding-top: 150px; /* Moves the content inside the container down */
+}
+
+.metrics-container p {
+  margin: 0; /* Remove extra margin */
+  padding: 7px; /* Remove extra padding */
+  position: relative; /* Allow top positioning */
+  top: -70px;
+}
+
 
 @keyframes App-logo-spin {
   from {
