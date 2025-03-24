@@ -15,6 +15,7 @@ const Dashboard = () => {
         filesystem_history: [],
         os_history: { user: [], system: [], idle: [] }
     });
+    const [alerts, setAlerts] = useState([]);
 
     useEffect(() => {
         const fetchMetrics = async () => {
@@ -26,6 +27,7 @@ const Dashboard = () => {
                 }
     
                 const data = await response.json();
+                
                 setMetricsHistory(prev => ({
                     cpu_history: data.cpu_history || prev.cpu_history,
                     memory_history: data.memory_history || prev.memory_history,
@@ -38,6 +40,12 @@ const Dashboard = () => {
                         idle: data.os_idle_history || prev.os_history.idle
                     }
                 }));
+
+                // Handle Alerts
+                if (data.alerts) {
+                    setAlerts(data.alerts);
+                }
+
             } catch (error) {
                 console.error("Error fetching metrics:", error);
             }
@@ -55,65 +63,36 @@ const Dashboard = () => {
         Filesystem: () => <FileSystemChart filesystemHistory={metricsHistory.filesystem_history} />,
         OS: () => <OSChart osUserHistory={metricsHistory.os_history.user} osSystemHistory={metricsHistory.os_history.system} osIdleHistory={metricsHistory.os_history.idle} />,
     };
-
-    const buttonImages = {
-        CPU: {
-            default: "/cpu.png",  // Updated path
-            hover: "/cpulight.png",  // Updated path
-            active: "/cpulight.png"  // Updated path
-        },
-        Memory: {
-            default: "/memory.png",  // Updated path
-            hover: "/memorylight.png",  // Updated path
-            active: "/memorylight.png"  // Updated path
-        },
-        IO: {
-            default: "/io.png",  // Updated path
-            hover: "/iolight.png",  // Updated path
-            active: "/iolight.png"  // Updated path
-        },
-        Filesystem: {
-            default: "/filesystem.png",  // Updated path
-            hover: "/filesystemlight.png",  // Updated path
-            active: "/filesystemlight.png"  // Updated path
-        },
-        OS: {
-            default: "/os.png",  // Updated path
-            hover: "/oslight.png",  // Updated path
-            active: "/oslight.png"  // Updated path
-        }
-    };
-
+    
     return (
         <div className="dashboard-container">
+            {/* Alerts Section */}
+            {alerts.length > 0 && (
+                <div className="alert-box">
+                    {alerts.map((alert, index) => (
+                        <div key={index} className="alert">
+                            ⚠️ {alert}
+                        </div>
+                    ))}
+                </div>
+            )}
+
             <div className="button-group">
                 {Object.keys(Graphs).map(metric => (
                     <button
                         key={metric}
-                        onClick={() => {
-                            setSelectedMetric(metric);
-                            console.log("Selected Metric:", metric);
-                        }}
+                        onClick={() => setSelectedMetric(metric)}
                         className={`image-button ${selectedMetric === metric ? "active" : ""}`}>
-                        <div className="image-container">
-                            <img 
-                                src={selectedMetric === metric ? buttonImages[metric].active : buttonImages[metric].default}
-                                alt={`${metric} Button`} 
-                                className="button-image"
-                            />
-                            <span className="button-text">{metric}</span>
-                            </div>
+                        {metric}
                     </button>
                 ))}
             </div>
 
-            <div className="graph-container" style={{ height: "300px", backgroundColor: "#FFFFFF" }}>
+            <div className="graph-container">
                 {selectedMetric ? React.createElement(Graphs[selectedMetric]) : <p>Select a metric to view data</p>}
             </div>
         </div>
     );
 };
 
-
 export default Dashboard;
-
