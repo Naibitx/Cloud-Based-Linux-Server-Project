@@ -6,6 +6,8 @@ import FileSystemChart from "./filestystemcharts";
 import OSChart from "./oscharts"; 
 
 const Dashboard = () => {
+
+    //state hooks for selected metric, alerts, and metrics history
     const [selectedMetric, setSelectedMetric] = useState(null);
     const [alerts, setAlerts] = useState([]);
     const [metricsHistory, setMetricsHistory] = useState({
@@ -17,6 +19,7 @@ const Dashboard = () => {
         os_history: { user: [], system: [], idle: [] }
     });
 
+    // useEffect hook to fetch metrics data from the backend every 5 seconds
     useEffect(() => {
         const fetchMetrics = async () => {
             try {
@@ -45,9 +48,10 @@ const Dashboard = () => {
         };
     
         fetchMetrics();
-        const intervalId = setInterval(fetchMetrics, 5000);
+        const intervalId = setInterval(fetchMetrics, 5000);//fetch metrics every 5 seconds
         return () => clearInterval(intervalId);
     }, []);
+    // useEffect hook to fetch alerts data from the backend every 5 seconds
     useEffect(() => {
         const fetchAlerts = async () => {
             try {
@@ -70,7 +74,7 @@ const Dashboard = () => {
         return () => clearInterval(intervalId);
     }, []);
 
-
+    // Mapping for different charts based on metrics
     const Graphs = {
         CPU: () => <CPUChart cpuHistory={metricsHistory.cpu_history} />,
         Memory: () => <MemoryChart memoryHistory={metricsHistory.memory_history} />,
@@ -78,32 +82,32 @@ const Dashboard = () => {
         Filesystem: () => <FileSystemChart filesystemHistory={metricsHistory.filesystem_history} />,
         OS: () => <OSChart osUserHistory={metricsHistory.os_history.user} osSystemHistory={metricsHistory.os_history.system} osIdleHistory={metricsHistory.os_history.idle} />,
     };
-
+    //images for buttons, with different states for default, hover, and active
     const buttonImages = {
         CPU: {
-            default: "/cpu.png",  // Updated path
-            hover: "/cpulight.png",  // Updated path
-            active: "/cpulight.png"  // Updated path
+            default: "/cpu.png", 
+            hover: "/cpulight.png",  
+            active: "/cpulight.png"  
         },
         Memory: {
-            default: "/memory.png",  // Updated path
-            hover: "/memorylight.png",  // Updated path
-            active: "/memorylight.png"  // Updated path
+            default: "/memory.png",  
+            hover: "/memorylight.png",  
+            active: "/memorylight.png"  
         },
         IO: {
-            default: "/io.png",  // Updated path
-            hover: "/iolight.png",  // Updated path
-            active: "/iolight.png"  // Updated path
+            default: "/io.png",  
+            hover: "/iolight.png", 
+            active: "/iolight.png"  
         },
         Filesystem: {
-            default: "/filesystem.png",  // Updated path
-            hover: "/filesystemlight.png",  // Updated path
-            active: "/filesystemlight.png"  // Updated path
+            default: "/filesystem.png", 
+            hover: "/filesystemlight.png",  
+            active: "/filesystemlight.png"  
         },
         OS: {
-            default: "/os.png",  // Updated path
-            hover: "/oslight.png",  // Updated path
-            active: "/oslight.png"  // Updated path
+            default: "/os.png",  
+            hover: "/oslight.png",  
+            active: "/oslight.png" 
         }
     };
 
