@@ -1,12 +1,14 @@
 FLASK_PORT=5001
 FLASK_DIR="/home/naibys.alzugarayofficial/scripts/metrics.py"
 FLASK_LOG="/var/log/flask.log"
-FLASK_CMD="python3 /home/naibys.alzugarayofficial/scripts/metrics.py" 
+FLASK_CMD="python3 metrics.py"
+
 
 REACT_PORT=3000
 REACT_DIR="/home/naibys.alzugarayofficial/scripts/dashboard.js"
 REACT_LOG="/var/log/react.log"
-REACT_CMD="npm start --prefix /home/naibys.alzugarayofficial/scripts/"  
+REACT_CMD=flask --app metrics run --host=0.0.0.0 --port=5001
+
 
 # === FLASK SERVER ===
 if ! nc -z localhost $FLASK_PORT; then

@@ -9,7 +9,11 @@ import threading
 from collections import deque
 
 app = Flask(__name__)
-CORS(app, resources={r"/metrics": {"origins": "http://localhost:*"}})
+CORS(app, origins=[
+    "http://104.196.134.124:3000",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+])
 
 PIPE_PATH = "/tmp/metrics_pipe"
 
@@ -157,6 +161,7 @@ def api_metrics():
         return jsonify(metrics)
     except Exception as e:
         return jsonify({"Error: ": str(e)}), 500
+        
 def get_alerts():
     alerts = []
     CPU_THRESHOLD = 80 
@@ -172,7 +177,7 @@ def get_alerts():
 
     if metrics["Disk Usage(%)"] > DISK_THRESHOLD:
         alerts.append("Disk space is running low!")
-    return jsonify({"alerts": alerts})
+    return jsonify({"alerts": alerts}) 
         
 if __name__ == "__main__":
     thread_A = threading.Thread(target=back_task, daemon=True)
@@ -181,7 +186,7 @@ if __name__ == "__main__":
     thread_A.start()
     thread_B.start()
 
-    app.run("0.0.0.0", port =5001)
+    app.run(host="0.0.0.0", port=5001, debug=True)
 
 
 

@@ -7,7 +7,7 @@ const Metrics = () => {
     useEffect(() => {
         const getMetrics = async () => {
             try {
-                const response = await fetch("http://localhost:5001/metrics");
+                const response = await fetch("http://104.196.134.124:5001/metrics");
                 if (!response.ok) {
                     throw new Error("Error: Failed to get metrics");
                 }

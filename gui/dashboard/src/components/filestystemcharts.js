@@ -52,7 +52,6 @@ const FilesystemChart = ({ filesystemHistory }) => {
             },
         },
     };
-
     return (
         <div className="chart-container">
             <Line data={chartData} options={chartOptions} />
