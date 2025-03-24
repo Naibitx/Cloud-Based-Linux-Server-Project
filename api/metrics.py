@@ -139,6 +139,7 @@ def back_task():
         csv_saves(metrics)
         time.sleep(5)
 
+
 @app.route('/metrics', methods=['GET'])
 def api_metrics():
     try:
@@ -156,6 +157,22 @@ def api_metrics():
         return jsonify(metrics)
     except Exception as e:
         return jsonify({"Error: ": str(e)}), 500
+def get_alerts():
+    alerts = []
+    CPU_THRESHOLD = 80 
+    MEMORY_THRESHOLD = 75  
+    DISK_THRESHOLD = 85 
+
+    metrics = get_metrics()
+    if metrics["CPU Usage(%)"] > CPU_THRESHOLD:
+        alerts.append("High CPU usage AHHH!")
+
+    if metrics["Memory Usage(%)"] > MEMORY_THRESHOLD:
+        alerts.append("Memory usage is super high!")
+
+    if metrics["Disk Usage(%)"] > DISK_THRESHOLD:
+        alerts.append("Disk space is running low!")
+    return jsonify({"alerts": alerts})
         
 if __name__ == "__main__":
     thread_A = threading.Thread(target=back_task, daemon=True)
