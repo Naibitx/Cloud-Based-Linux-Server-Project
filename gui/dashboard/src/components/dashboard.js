@@ -19,7 +19,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchMetrics = async () => {
             try {
-                const response = await fetch("http://localhost:5001/metrics");
+                const response = await fetch("http://104.196.134.124:5001/metrics");
                 if (!response.ok) {
                     console.error("Error: Failed to get metrics", response.status);
                     return;
@@ -56,8 +56,36 @@ const Dashboard = () => {
         OS: () => <OSChart osUserHistory={metricsHistory.os_history.user} osSystemHistory={metricsHistory.os_history.system} osIdleHistory={metricsHistory.os_history.idle} />,
     };
 
+    const buttonImages = {
+        CPU: {
+            default: "/cpu.png",  // Updated path
+            hover: "/cpulight.png",  // Updated path
+            active: "/cpulight.png"  // Updated path
+        },
+        Memory: {
+            default: "/memory.png",  // Updated path
+            hover: "/memorylight.png",  // Updated path
+            active: "/memorylight.png"  // Updated path
+        },
+        IO: {
+            default: "/io.png",  // Updated path
+            hover: "/iolight.png",  // Updated path
+            active: "/iolight.png"  // Updated path
+        },
+        Filesystem: {
+            default: "/filesystem.png",  // Updated path
+            hover: "/filesystemlight.png",  // Updated path
+            active: "/filesystemlight.png"  // Updated path
+        },
+        OS: {
+            default: "/os.png",  // Updated path
+            hover: "/oslight.png",  // Updated path
+            active: "/oslight.png"  // Updated path
+        }
+    };
+
     return (
-        <div className="dashboard-cont">
+        <div className="dashboard-container">
             <div className="button-group">
                 {Object.keys(Graphs).map(metric => (
                     <button
@@ -66,19 +94,26 @@ const Dashboard = () => {
                             setSelectedMetric(metric);
                             console.log("Selected Metric:", metric);
                         }}
-                        className={selectedMetric === metric ? "active" : ""}
-                    >
-                        {metric}
+                        className={`image-button ${selectedMetric === metric ? "active" : ""}`}>
+                        <div className="image-container">
+                            <img 
+                                src={selectedMetric === metric ? buttonImages[metric].active : buttonImages[metric].default}
+                                alt={`${metric} Button`} 
+                                className="button-image"
+                            />
+                            <span className="button-text">{metric}</span>
+                            </div>
                     </button>
                 ))}
             </div>
 
-            <div className="graph-cont" style={{ height: "300px" }}>
+            <div className="graph-container" style={{ height: "300px", backgroundColor: "#FFFFFF" }}>
                 {selectedMetric ? React.createElement(Graphs[selectedMetric]) : <p>Select a metric to view data</p>}
             </div>
         </div>
     );
 };
+
 
 export default Dashboard;
 

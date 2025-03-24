@@ -1,7 +1,13 @@
 @font-face {
-  font-family: 'StardewValley'; /* Choose a name for your font */
-  src: url('./assets/StardewValley.ttf') format('truetype'); /* Adjust the path to where you stored the font */
+  font-family: 'StardewValley'; 
+  src: url('./assets/StardewValley.ttf') format('truetype'); 
 }
+
+html {
+  overflow: hidden;
+  height: 100%;
+}
+
 
 .App {
   text-align: center;
@@ -9,7 +15,6 @@
   background-size: cover;
   background-position: center;
   height: 100vh;
-
 }
 
 .App-logo {
@@ -25,47 +30,157 @@
 
 .App-header {
   min-height: 100vh;
-  display: flex;
+ /*  display: flex; */
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  /*justify-content: space-between; */
+ /*  align-items: flex-start;   */
   font-size: calc(10px + 2vmin);
   color: white;
 }
 
+
 .App-link {
   color: #61dafb;
 }
-.App-header img {
+
+.App-header > img {
   width: 850px;
   height: auto; 
   position: absolute;
   left: 100px; 
   top: 50px;
+}
 
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; 
+  align-items: flex-end; 
+  width: 100%;
+  padding: 20px;
+  gap: 20px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  
+  
 }
 
 .metrics-container {
   font-family: 'StardewValley', sans-serif;
   color: #643932;
-  background-image: url('./assets/metrics.png');  
-  background-repeat: no-repeat;  
+  background-image: url('./assets/metrics.png');
+  background-repeat: no-repeat;
   background-size: 50%;
-  width: 85%;  
-  height: 580px;  
-  text-align: left; /* Aligns text content inside to the left */
-  position: relative; /* Allows movement */
-  top: 450px; /* Moves the whole container down */
-  padding-top: 150px; /* Moves the content inside the container down */
+  width: 85%;
+  height: 580px;
+  text-align: left;
+  position: relative;
+  top: 450px;
+  padding-top: 150px;
+  left: 130px;
 }
 
 .metrics-container p {
-  margin: 0; /* Remove extra margin */
-  padding: 7px; /* Remove extra padding */
-  position: relative; /* Allow top positioning */
+  margin: 0;
+  padding: 7px;
+  position: relative;
   top: -70px;
 }
 
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end; 
+  align-items: flex-start;
+  gap: 60px;
+  padding-top: 30px;
+}
+
+.image-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: visible; 
+  margin: 0 auto;
+  flex-direction: column; 
+  transition: transform 0.3s ease, opacity 0.3s ease; 
+  background-color: transparent; 
+  border: none; 
+  padding: 0;
+  width: 100px;
+  height: 100px;
+  max-width: 80px;
+  max-height: 80px;
+  }
+
+.button-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity 0.3s ease, transform 0.3s ease; 
+}
+
+.graph-container {
+  width: 40%;
+  height: 40%;
+  background-color: aliceblue;
+  margin-top: 50px; 
+  display: flex;
+  justify-content: center;
+  font-family: 'StardewValley', sans-serif;
+
+}
+
+.image-container {
+  position: relative; 
+  width: 100%;  
+  height: 100%; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.image-button:hover .button-image {
+  opacity: 0.9; 
+  transform: translateY(-5px); 
+  transform: scale(1.1);
+}
+
+.image-button.active .button-image {
+  opacity: 1;  
+  transform: translateY(2px);  
+}
+
+.button-text {
+  position: absolute;
+  top: 50%; 
+  left: 50%;  
+  transform: translate(-50%, -50%); 
+  color: #c44430;
+  font-family: 'StardewValley', sans-serif;
+  font-size: 30px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px black; 
+  z-index: 2; 
+  transition: opacity 0.3s, color 0.3s;
+  bottom: 5px; 
+}
+
+.button-image[src*="memory"],
+.button-image[src*="filesystem"] {
+  width: 180px;
+  height: 180px;
+}
+
+.image-button:hover .button-text {
+  opacity: 1;
+}
+
+.image-button.active .button-text {
+  color: #ff9900; 
+}
 
 @keyframes App-logo-spin {
   from {
