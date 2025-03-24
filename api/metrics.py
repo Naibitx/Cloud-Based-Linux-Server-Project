@@ -9,18 +9,18 @@ import threading
 from collections import deque
 
 app = Flask(__name__)
-CORS(app, origins=[
+CORS(app, origins=[ #allows Cors Requests from these domains
     "http://104.196.134.124:3000",
     "http://localhost:3000",
     "http://127.0.0.1:3000"
 ])
 
+#Defines constants for file paths and history lenghts 
 PIPE_PATH = "/tmp/metrics_pipe"
-
 CSV_FILE = "metric_logs.csv"
+HISTORY_LENGTH = 30 #number of metrics to keep in history
 
-HISTORY_LENGTH = 30
-
+#Starts dequeues to store historical data of the metrics
 cpu_history = deque(maxlen=HISTORY_LENGTH)
 memory_history = deque(maxlen=HISTORY_LENGTH)
 io_read_history = deque(maxlen=HISTORY_LENGTH)
@@ -30,6 +30,7 @@ os_user_history = deque(maxlen=HISTORY_LENGTH)
 os_system_history = deque(maxlen=HISTORY_LENGTH)
 os_idle_history = deque(maxlen=HISTORY_LENGTH)
 
+#Function to save metrics data to CSV file
 def csv_saves(metrics):
     try:
         file_exist = os.path.isfile(CSV_FILE)
@@ -38,6 +39,7 @@ def csv_saves(metrics):
             if not file_exist:
                 writer.writerow(["Timestamp", "CPU Usage(%)", "Memory Usage(%)", "IO(Disk) Read(MB)", "IO(Disk) Write(MB)","Disk Usage(%)", "OS User Time(s)", "OS System Time(s)", "OS Idle Time(s)"])
             
+            #Write curren metrics in the CSV file
             writer.writerow([
                 time.strftime("%Y-%m-%d %H:%M:%S"),
                 metrics["CPU Usage(%)"],
@@ -49,42 +51,49 @@ def csv_saves(metrics):
                 metrics["OS System Time(s)"],
                 metrics["OS Idle Time(s)"]
             ])
-    except FileNotFoundError:
-        print(f"Error: {CSV_FILE} file not Found")
-    except PermissionError:
+    except FileNotFoundError: #Handles file not found
+        print(f"Error: {CSV_FILE} file not Found") 
+    except PermissionError:#Handles permision error
         print(f"Error: You dont have write permission on {CSV_FILE} file")
-    except OSError as a:
+    except OSError as a:#Handles disk access issues
         print(f"Error: Disk issue occured when accessing {CSV_FILE} file")
-    except Exception as e:
+    except Exception as e:#Catch all other exception
         print(f"Error: unexpected error when saving data to {CSV_FILE}: {e}")
         traceback.print_exc()
 
-def monitor_cpu(): # funtion tracks cpu usage
+# funtion tracks cpu usage
+def monitor_cpu():
     return psutil.cpu_percent(interval=1)
 
-def monitor_io(): # function tracs io statistics 
+# function tracs io statistics 
+def monitor_io(): 
     io_counter= psutil.disk_io_counters()
     read_bytes= io_counter.read_bytes/ (1024*1024) #converting to MB
     write_bytes= io_counter.write_bytes / (1024*1024) #converting to MB
     return read_bytes, write_bytes
 
-def monitor_memory():# funciton tracks memory usage
+# funciton tracks memory usage
+def monitor_memory():
     return psutil.virtual_memory().percent
 
-def monitor_disk(): # function tracks disk usage
+# function tracks disk usage
+def monitor_disk():
     return psutil.disk_usage('/').percent
 
-def monitor_os():# functiont racks OS which is the cpu times
+# functiont racks OS which is the cpu times
+def monitor_os():
     os_use = psutil.cpu_times()
     return os_use.user, os_use.system, os_use.idle
 
-def get_metrics():# funciton collects the metrics
+# funciton collects the metrics
+def get_metrics():
     cpu_use= monitor_cpu()
     memory_use= monitor_memory()
     io_read, io_write= monitor_io()
     disk_use= monitor_disk()
     os_user, os_system, os_idle = monitor_os()
 
+    #appends metrics to their respective histories
     cpu_history.append(cpu_use)
     memory_history.append(memory_use)
     io_read_history.append(io_read)
@@ -97,7 +106,7 @@ def get_metrics():# funciton collects the metrics
     os_system_history.append(os_system)
     os_idle_history.append(os_idle)
 
-    return{
+    return{#returns dictionary that contains the metrics obtained
         "CPU Usage(%)": cpu_use,
         "Memory Usage(%)": memory_use,
         "IO(Disk) Read(MB)": io_read,
@@ -108,7 +117,7 @@ def get_metrics():# funciton collects the metrics
         "OS Idle Time(s)": os_idle
 
 }
-
+#Funciton prints metric sin the console
 def show_metrics(metrics):
     print(f"CPU Usage: {metrics['CPU Usage(%)']}%")
     print(f"Memory Usage: {metrics['Memory Usage(%)']}%")
@@ -120,6 +129,7 @@ def show_metrics(metrics):
     print(f"CPU Idle Time: {metrics['OS Idle Time(s)']:.2f}s")
     print("-"* 50)
 
+# Function to write metrics to a named pipe 
 def write_to_pipe():
     if not os.path.exists(PIPE_PATH):
         os.mkfifo(PIPE_PATH)
@@ -136,6 +146,7 @@ def write_to_pipe():
             print(f"Error writing to pipe: {e}")
             traceback.print_exc()
 
+#background task that collects and shows metrics every 5 seconds, and saves them to CSV
 def back_task():
     while True:
         metrics = get_metrics()
@@ -143,7 +154,7 @@ def back_task():
         csv_saves(metrics)
         time.sleep(5)
 
-
+#Flask route to return the current metrics as JSON
 @app.route('/metrics', methods=['GET'])
 def api_metrics():
     try:
@@ -161,7 +172,8 @@ def api_metrics():
         return jsonify(metrics)
     except Exception as e:
         return jsonify({"Error: ": str(e)}), 500
-        
+
+#function to get alerts based on threshold limits for CPU, memory, and disk usage
 def get_alerts():
     alerts = []
     CPU_THRESHOLD = 80 
