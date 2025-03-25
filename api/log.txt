@@ -1,0 +1,25 @@
+75038e5 - Naibitx, 4 minutes ago : commenting dahsboard.js
+bc09d7d - Naibitx, 10 minutes ago : Comments on Metrics file
+8be7376 - Naibitx, 22 minutes ago : Fixed alerts
+405382d - Naibitx, 8 hours ago : Cron Job so to ensure API and React are always running
+bc04db3 - Naibitx, 11 hours ago : setting up alerts for
+d48d46b - Naibitx, 11 hours ago : Adding buttons and button animation
+06b93af - Naibitx, 6 days ago : finished dahsboard tittle and metrics panel
+0152564 - Naibitx, 6 days ago : fixed file system and os graphs
+e566f08 - Naibitx, 6 days ago : Fixed Dashboards
+1a4c08c - Naibitx, 6 days ago : completed charts js files
+9b66a96 - Naibitx, 6 days ago : orginized metrics.py and fixed metric implementation
+1b90a42 - Naibitx, 6 days ago : updated files
+1af3998 - Naibitx, 6 days ago : changes on metrics csv file
+7f862be - Naibitx, 6 days ago : updated files, fixed syntax
+8725ec6 - Naibitx, 6 days ago : made charts.js files and got cpuchart to work
+f5251cc - Naibitx, 7 days ago : created buttons for metrics
+3565d03 - Naibitx, 7 days ago : created metrics.js, app works
+f7f9b25 - Naibitx, 8 days ago : changed ports
+66e1621 - Naibitx, 8 days ago : installed react and changed port number
+7cbe518 - Naibitx, 8 days ago : created metrics file and cvs to store data
+8431ba1 - Naibitx, 9 days ago : Fixed os_stress syntax funciton syntax
+db65d82 - Naibitx, 9 days ago : Fixed script syntax
+7835576 - Naibitx, 9 days ago : Created script to simulate stress in classes
+14b5829 - Naibys Alzugaray Santos, 9 days ago : Update README.md
+70a50c6 - Naibys Alzugaray Santos, 9 days ago : Initial commit

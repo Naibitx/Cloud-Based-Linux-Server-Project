@@ -86,6 +86,24 @@ def monitor_os():
     return os_use.user, os_use.system, os_use.idle
 
 # funciton collects the metrics
+@app.route("/alerts")
+def get_alerts():
+    alerts = []
+    CPU_THRESHOLD = 80 
+    MEMORY_THRESHOLD = 75  
+    DISK_THRESHOLD = 85 
+
+    metrics = get_metrics()
+    if metrics["CPU Usage(%)"] > CPU_THRESHOLD:
+        alerts.append("High CPU usage AHHH!")
+
+    if metrics["Memory Usage(%)"] > MEMORY_THRESHOLD:
+        alerts.append("Memory usage is super high!")
+
+    if metrics["Disk Usage(%)"] > DISK_THRESHOLD:
+        alerts.append("Disk space is running low!")
+    return jsonify({"alerts": alerts}) 
+
 def get_metrics():
     cpu_use= monitor_cpu()
     memory_use= monitor_memory()
@@ -174,22 +192,6 @@ def api_metrics():
         return jsonify({"Error: ": str(e)}), 500
 
 #function to get alerts based on threshold limits for CPU, memory, and disk usage
-def get_alerts():
-    alerts = []
-    CPU_THRESHOLD = 80 
-    MEMORY_THRESHOLD = 75  
-    DISK_THRESHOLD = 85 
-
-    metrics = get_metrics()
-    if metrics["CPU Usage(%)"] > CPU_THRESHOLD:
-        alerts.append("High CPU usage AHHH!")
-
-    if metrics["Memory Usage(%)"] > MEMORY_THRESHOLD:
-        alerts.append("Memory usage is super high!")
-
-    if metrics["Disk Usage(%)"] > DISK_THRESHOLD:
-        alerts.append("Disk space is running low!")
-    return jsonify({"alerts": alerts}) 
         
 if __name__ == "__main__":
     thread_A = threading.Thread(target=back_task, daemon=True)

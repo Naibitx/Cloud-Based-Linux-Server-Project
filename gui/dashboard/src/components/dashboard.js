@@ -57,23 +57,24 @@ const Dashboard = () => {
             try {
                 const response = await fetch("http://104.196.134.124:5001/alerts");
                 if (!response.ok) {
-                    console.error("Error fetching alerts", response.status);
+                    console.error("Error fetching alerts:", response.status, response.statusText);
                     return;
                 }
                 const data = await response.json();
-                console.log("Fetched Alerts:", data); 
-                setAlerts(data.alerts);
+                console.log("Fetched Alerts:", data);
+    
+                // Ensure alerts is an array before setting state
+                setAlerts(Array.isArray(data.alerts) ? data.alerts : []);
             } catch (error) {
                 console.error("Error fetching alerts:", error);
             }
         };
     
         fetchAlerts();
-        const intervalId = setInterval(fetchAlerts, 5000); 
+        const intervalId = setInterval(fetchAlerts, 5000); // Auto-refresh every 5 seconds
     
         return () => clearInterval(intervalId);
     }, []);
-
     // Mapping for different charts based on metrics
     const Graphs = {
         CPU: () => <CPUChart cpuHistory={metricsHistory.cpu_history} />,
@@ -113,16 +114,18 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-container">
-             {/* Alerts Section */}
-            {alerts.length > 0 && (
-                <div className="alert-box">
-                    {alerts.map((alert, index) => (
-                        <div key={index} className="alert">
-                            ⚠️ {alert}
-                        </div>
-                    ))}
-                </div>
-            )}
+                {/* Alerts Section */}
+                {alerts.length > 0 && (
+                    <div className="alert-box">
+                        {alerts.map((alert, index) => (
+                            <div key={index} className={`alert ${alert.includes("CPU") ? "alert-cpu" : 
+                                                        alert.includes("Memory") ? "alert-memory" : 
+                                                        "alert-disk"}`}>
+                                ⚠️ {alert}
+                            </div>
+                        ))}
+                    </div>
+                )}
             
             <div className="button-group">
                 {Object.keys(Graphs).map(metric => (

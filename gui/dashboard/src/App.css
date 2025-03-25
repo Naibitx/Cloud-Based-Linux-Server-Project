@@ -182,16 +182,32 @@ html {
   color: #ff9900; 
 }
 .alert-box {
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
   padding: 10px;
-  margin: 10px 0;
-  background-color: #ffcc00;
+  margin-bottom: 10px;
   border-radius: 5px;
 }
 
 .alert {
-  font-size: 16px;
-  color: #000;
-  margin-bottom: 5px;
+  padding: 10px;
+  margin: 5px 0;
+  font-weight: bold;
+}
+
+.alert-cpu {
+  color: white;
+  background-color: red;
+}
+
+.alert-memory {
+  color: white;
+  background-color: orange;
+}
+
+.alert-disk {
+  color: black;
+  background-color: yellow;
 }
 
 @keyframes App-logo-spin {
